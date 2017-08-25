@@ -123,3 +123,5 @@ data_1
 write.csv(data_0,'target0.csv')
 write.csv(data_1,'target1.csv')
 unclass(summary(data_set$TOT_PREM))
+
+#### 수정되는지 확인작업 ####
