@@ -1,17 +1,23 @@
+#library load---------------------------------------------------
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+
+#wd,readcsv ---------------------------------------------------------
 getwd()
+setwd("C:/Users/hanbum/Desktop/rdata/빅콘")
+data_set <- read.csv('Data_set.csv',header = T, stringsAsFactors = F,
+                     na.strings = c('NULL',''))
+data_set = data_set[,-c(1:2)] #이후 데이터 셋은 0번 고객 번호까지 삭제한 데이터셋을 활용함
 
-setwd("G:/bigcon")
-data_set <- read.csv('Data_set.csv',header = T)
-data_set[,1:2] # 필요 없음 삭제 해야함
+#####연체 & 비 연체 그룹으로 분할#########
+data_0 <- data_set[data_set$TARGET==0,]
+data_1 <- data_set[data_set$TARGET==1,]
 
-# 이후 데이터 셋은 0번 고객 번호 까지 삭제한 데이터셋을 활용함
-data_set = data_set[,-c(1:2)]
+# ① Data Pre-processing---------------------------------------------
+### ① Data Pre-processing 1.Value Type------------------------------
+str(data_set)
 
-
-###### 전체 데이터의 변수의 타입이 int/factor로 구분되어 있지만 일부 수정이 필요########
-
-str(data_set) # 데이터 변수타입 확인
-summary(data_set)
 ### int변수를 factor로 변경하는 작업 ###
 TARGET <- as.factor(data_set[,1])
 data_set[,1] <- TARGET
@@ -64,9 +70,12 @@ data_set[,47] <- LT1Y_CTLT_CNT
 TLFE_UNPD_CNT <- as.factor(data_set[,64])
 data_set[,64] <- TLFE_UNPD_CNT
 
-#####################################################################################
-# SCI 금액 변수 수정
+### ① Data Pre-processing 2.Missing Value----------------------------
+colSums(is.na(data_set))  #결측값 확인
 
+
+### ① Data Pre-processing 3.Data Transforming------------------------------
+### SCI 금액 변수 수정 ###
 TOT_LNIF_AMT <- data_set[,6]*1000
 data_set[,6] <- TOT_LNIF_AMT
 
@@ -89,13 +98,6 @@ MATE_JOB_INCM <- data_set[,23]*10000
 data_set[,23] <- MATE_JOB_INCM
 
 
-
-
-###############연체 & 비 연체 그룹으로 분할###########################################
-data_0 <- data_set[data_set$TARGET==0,]
-data_1 <- data_set[data_set$TARGET==1,]
-
-summary_0 <- summary(data_0)
-summary_1 <- summary(data_1)
-summary(data_1)
-
+# ② Values Selection--------------------------------------------------
+# ③ Classification Model ---------------------------------------------
+# ④ Classification Model ---------------------------------------------
