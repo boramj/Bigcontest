@@ -2,14 +2,17 @@
 library(ggplot2)
 library(dplyr)
 library(reshape2)
+library(corrplot)
 
 #wd,readcsv ---------------------------------------------------------
 getwd()
 setwd("C:/Users/hanbum/Desktop/rdata/빅콘")
 data_set <- read.csv('Data_set.csv',header = T, stringsAsFactors = F,
                      na.strings = c('NULL',''))
-data_set = data_set[,-c(1:2)] #이후 데이터 셋은 0번 고객 번호까지 삭제한 데이터셋을 활용함
 
+data_set = data_set[,-1] #이후 데이터 셋은 0번 고객 번호까지 삭제한 데이터셋을 활용함(??)
+
+str(data_set)
 #####연체 & 비 연체 그룹으로 분할#########
 data_0 <- data_set[data_set$TARGET==0,]
 data_1 <- data_set[data_set$TARGET==1,]
