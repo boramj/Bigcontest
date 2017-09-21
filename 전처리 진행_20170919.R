@@ -94,6 +94,11 @@ AVG_STLN_RATE_1 = data_set[,35]
 AVG_STLN_RATE_1[AVG_STLN_RATE_1!= 0] = 1
 AVG_STLN_RATE_1
 
+# [38] LT1Y_SLOD_RATE : 파생변수 (0 값을 갖는 관측치가 매우 높아 0과 1(연체율)의 값을 갖는 변수 생성
+LT1Y_SLOD_RATE = data_set[,38]
+LT1Y_SLOD_RATE_1[LT1Y_SLOD_RATE_1!= 0] = 1
+LT1Y_SLOD_RATE_1
+
 # [52] AGE : 범주화
 data_set[data_set[,52] == "*",52] = '0'
 data_set[,52] = as.numeric(data_set[,52])
@@ -104,6 +109,12 @@ AGE_1
 
 # [57] ARPU : 변수 타입 전처리
 data_set[data_set[,57] == -1,57] = 0
+
+# [59] CBPT_MBSP_YN : 변수 타입 전처리
+data_set[data_set[,59] == 'Y' ,59] = 1
+data_set[data_set[,59] == 'N' ,59] = 0
+data_set[,59] <- as.numeric(data_set[,59])
+
 
 # [61] TEL_CNTT_QTR : 변수 타입 전처리
 summary(data_set[,61])
@@ -137,7 +148,11 @@ data_set[,61] = TEL_CNTT_QTR
 
 # [66] PAYM_METD Missinf value
 
-
+# [67] LINE_STUS : 변수 타입 전처리
+data_set[data_set[,67] == 'U' ,67] = 1
+data_set[data_set[,67] == 'S' ,67] = 0
+data_set[,67] <- as.numeric(data_set[,67])
+table(data_set[,67])
 
 # ① Data Pre-processing 1. EDA---------------------------------------------
 
