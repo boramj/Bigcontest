@@ -74,6 +74,16 @@ data_set[,25] <- MIN_CNTT_DATE
 table(data_set[,25])
 table(MIN_CNTT_DATE) # 대출 받지 않은 사람을 '0'으로 봐야 할지 아니면 데이터 처럼 NA값으로 봐야 할지
 
+# 가장최근가입일로 부터 기간값이 필요한 경우
+b1 = as.Date('2016-04-15') #가장 최근날짜 시점
+difftime_week<-as.numeric(difftime(b1, MIN_CNTT_DATE,units='weeks'))
+difftime_week_t0<-as.numeric(difftime(b1, MIN_CNTT_DATE[which(TARGET==0)],units='weeks'))
+difftime_week_t1<-as.numeric(difftime(b1, MIN_CNTT_DATE[which(TARGET==1)],units='weeks'))
+
+
+diff_1 <-  cut(difftime_week, breaks = seq(0,900
+
+
 # [28] CRLN_OVDU_RATE : 파생변수 (0 값을 갖는 관측치가 매우 높아 0과 1(연체율)의 값을 갖는 변수 생성
 CRLN_OVDU_RATE_1 = data_set[,28]
 CRLN_OVDU_RATE_1[CRLN_OVDU_RATE_1!= 0] = 1
@@ -155,6 +165,53 @@ data_set[,67] <- as.numeric(data_set[,67])
 table(data_set[,67])
 
 # ① Data Pre-processing 1. EDA---------------------------------------------
+
+
+
+# Data 탐색------------------------------ <<<<<<  중요X  >>>>>>------------------------
+####가족관련 변수들
+#소득(본인, 배우자, 가구)
+spou_income<-CUST_JOB_INCM+MATE_JOB_INCM #배우자 +나의 소득합
+cor(spou_income, HSHD_INFR_INCM) #가구추정소득, 부부 소득합 상관관계 (0.576)
+
+#본인+배우자-가구  소득 (3자 X 자녀나이)
+third_income = CUST_JOB_INCM + MATE_JOB_INCM - HSHD_INFR_INCM 
+third_income<-third_income[which(LAST_CHLD_AGE!='NA')] #last_child변수에서 NA값있는 행 빼버림
+new_last_child<- LAST_CHLD_AGE[which(LAST_CHLD_AGE!='NA')] #NA값 제외하고 새로운 변수 생성
+length(third_income)==length(new_last_child) #상관계수 구하려는 값들의 길이가 같은지 확인
+cor(new_last_child,third_income) 
+
+# 실제 가족원수 & 보험가입원수
+cor(ACTL_FMLY_NUM, CUST_FMLY_NUM) #상관관계 = 0.39
+prop_fam_insurance<- CUST_FMLY_NUM/ACTL_FMLY_NUM
+prop_fam_insurance<-round(prop_fam_insurance, 1)
+
+# 성별에 따른 배우자와의 소득비교
+#sex = 남자/ 배우자 소득비교
+summary(data_set$MATE_JOB_INCM[which(data_set$SEX==1&data_set$MATE_JOB_INCM!=0&TARGET==0)])
+summary(data_set$MATE_JOB_INCM[which(data_set$SEX==1&data_set$MATE_JOB_INCM!=0&TARGET==1)])
+#sex = 여자/ 배우자 소득비교
+summary(data_set$MATE_JOB_INCM[which(data_set$SEX==2&data_set$MATE_JOB_INCM!=0&TARGET==0)])
+summary(data_set$MATE_JOB_INCM[which(data_set$SEX==2&data_set$MATE_JOB_INCM!=0&TARGET==1)])
+#sex = 남자/ "배우자가 수익이 없는경우"
+length(data_set$MATE_JOB_INCM[which(data_set$SEX==1&data_set$MATE_JOB_INCM!=0)])
+length(data_set$MATE_JOB_INCM[which(data_set$SEX==1&data_set$MATE_JOB_INCM==0)])
+#sex = 여자/ "배우자가 수익이 없는경우"
+length(data_set$MATE_JOB_INCM[which(data_set$SEX==2&data_set$MATE_JOB_INCM==0)])
+length(data_set$MATE_JOB_INCM[which(data_set$SEX==2&data_set$MATE_JOB_INCM!=0)])
+
+### 26X27 대출금액X상환금액
+#26X27 전체 대출 금액중 상환 금액 비율
+
+repay<- (TOT_REPY_AMT[which(TOT_CRLN_AMT!=0)])/(TOT_CRLN_AMT[which(TOT_CRLN_AMT!=0)]) # 계산을위해 대출금액이 0인거제외
+summary(repay)
+
+repay_t0<- (TOT_REPY_AMT[which(TOT_CRLN_AMT!=0&TARGET==0)])/(TOT_CRLN_AMT[which(TOT_CRLN_AMT!=0&TARGET==0)]) #target 0
+repay_t1<- (TOT_REPY_AMT[which(TOT_CRLN_AMT!=0&TARGET==1)])/(TOT_CRLN_AMT[which(TOT_CRLN_AMT!=0&TARGET==1)]) #target 1
+summary(repay_t0);summary(repay_t1)
+                                           
+                                           
+
 
 
 # AGE_1 탐색적 분석
