@@ -75,6 +75,8 @@ data_set[,25] <- MIN_CNTT_DATE
 table(data_set[,25])
 table(MIN_CNTT_DATE) # 대출 받지 않은 사람을 '0'으로 봐야 할지 아니면 데이터 처럼 NA값으로 봐야 할지
 
+
+####BGCON_CLAIM_DATA.TRAIN$RECP_DATE_YEAR <- as.numeric(format(as.Date(as.character(BGCON_CLAIM_DATA.TRAIN$RECP_DATE), format = "%Y%m%d"), "%Y"))
 # [28] CRLN_OVDU_RATE : 파생변수 (0 값을 갖는 관측치가 매우 높아 0과 1(연체율)의 값을 갖는 변수 생성
 CRLN_OVDU_RATE_1 = data_set[,28]
 CRLN_OVDU_RATE_1[CRLN_OVDU_RATE_1!= 0] = 1
@@ -128,7 +130,7 @@ for (i in 1:length(month)){
   }
   else if (month[i] == 3) {
     month_1[i] = 08
-  }
+  }                             
   else if (month[i] == 4) {
     month_1[i] = 11
   }
