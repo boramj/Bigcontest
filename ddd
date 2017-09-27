@@ -82,6 +82,7 @@ summary(difftime_week, na.rm = T)
 summary(difftime_week_t0, na.rm = T)
 summary(difftime_week_t1, na.rm = T)
  
+ BGCON_CLAIM_DATA.TRAIN$RECP_DATE_YEAR <- as.numeric(format(as.Date(as.character(BGCON_CLAIM_DATA.TRAIN$RECP_DATE), format = "%Y%m%d"), "%Y")) 
  
  +# [28] CRLN_OVDU_RATE : 파생변수 (0 값을 갖는 관측치가 매우 높아 0과 1(연체율)의 값을 갖는 변수 생성
  +CRLN_OVDU_RATE_1 = data_set[,28]
