@@ -1,0 +1,9 @@
+library(mice)
+for_mice_16<- trdata[,-c(21,22,56,66)] #16번 만 남겨두고 missing value 지움
+mice_mod<- mice(for_mice_16, method = 'rf')
+mice_16filled<- complete(mice_mod)
+anyNA(mice_16filled) #확인작업
+
+complete_row16<-mice_16filled[,16] # 해당열만 
+anyNA(complete_row16) #확인작업
+write.csv(complete_row16, "row16.csv")
