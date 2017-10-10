@@ -298,9 +298,9 @@ xgb.tune3 <-train(TARGET~., data= smote_age3,
 
 ### xgboostModel Predictions and Performance
 # Make predictions using the test data set
-xgb.pred1 <- predict(xgb.tune,data_age1te)
-xgb.pred2 <- predict(xgb.tune,data_age2te)
-xgb.pred3 <- predict(xgb.tune,data_age3te)
+xgb.pred1 <- predict(xgb.tune1,data_age1te)
+xgb.pred2 <- predict(xgb.tune2,data_age2te)
+xgb.pred3 <- predict(xgb.tune3,data_age3te)
 
 
 #Look at the confusion matrix  
