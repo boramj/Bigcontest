@@ -260,13 +260,13 @@ table(smote_age3$TARGET)
 
 ######xgboost##############
 ##random
-smote_age1$TARGET<- factor(smote_train$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
-smote_age2$TARGET<- factor(smote_train$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
-smote_age3$TARGET<- factor(smote_train$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
+smote_age1$TARGET<- factor(smote_age1$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
+smote_age2$TARGET<- factor(smote_age2$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
+smote_age3$TARGET<- factor(smote_age3$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
 
-data_age1te$TARGET<- factor(smote_train$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
-data_age2te$TARGET<- factor(smote_train$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
-data_age3te$TARGET<- factor(smote_train$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
+data_age1te$TARGET<- factor(data_age1te$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
+data_age2te$TARGET<- factor(data_age2te$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
+data_age3te$TARGET<- factor(data_age3te$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
 
 
 # Set up for parallel procerssing
@@ -281,19 +281,19 @@ traincr <- trainControl(method = "repeatedcv",   # 10fold cross validation
 
 
 xgb.tune1 <-train(TARGET~., data= smote_age1,
-                 method="xgbTree",
-                 metric="ROC",
-                 trControl=traincr)
+                  method="xgbTree",
+                  metric="ROC",
+                  trControl=traincr)
 
 xgb.tune2 <-train(TARGET~., data= smote_age2,
-                 method="xgbTree",
-                 metric="ROC",
-                 trControl=traincr)
+                  method="xgbTree",
+                  metric="ROC",
+                  trControl=traincr)
 
 xgb.tune3 <-train(TARGET~., data= smote_age3,
-                 method="xgbTree",
-                 metric="ROC",
-                 trControl=traincr)
+                  method="xgbTree",
+                  metric="ROC",
+                  trControl=traincr)
 
 
 ### xgboostModel Predictions and Performance
