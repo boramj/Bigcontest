@@ -261,19 +261,6 @@ table(nodatatrain$TARGET)
 smote_train <- SMOTE(TARGET ~ ., nodatatrain, perc.over=600, perc.under = 100)
 table(smote_train$TARGET)
 
-###randomForest
-#parameter 찾기
-fitControl <- trainControl(method = "repeatedcv",number = 10,repeats = 10)
-
-#적용하기 
-set.seed(1)
-rf1 <- train(TARGET ~ ., data = smote_train, 
-                 method = "rf", 
-                 trControl = fitControl,
-             na.action = na.omit)
-
-rfpredict <- predict(rf1, newdata = testdata)
-
 ##random
 library(randomForest)
 
