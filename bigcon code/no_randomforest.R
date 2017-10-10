@@ -236,11 +236,6 @@ colSums(is.na(data_set))
 library(caret)
 library(DMwR)
 
-#1만개 뽑자
-index <- sample(1:nrow(data_set), 10000)
-random1<-data_set[index, ]
-table(random1$TARGET)
-
 #데이터 나누기(8:2)
 set.seed(1)
 trainIndex <- createDataPartition(data_set$TARGET, p = .8)
