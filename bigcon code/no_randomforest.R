@@ -5,7 +5,7 @@ library(rpart) ;library(rpart.plot) ;library(randomForest)
 gc()
 rm(list=ls())
 #wd,readcsv ---------------------------------------------------------
-setwd("C:\\Users\\hanbum\\Desktop\\Data\\Bigcontest") 
+setwd("C:\\Work\\Data\\Bigcontest") 
 data_set <- read.csv('Data_set.csv',header = T, stringsAsFactors = F,
                      na.strings = c('NULL',''))
 
@@ -191,15 +191,6 @@ data_set$TOT_PREM <- log(data_set$TOT_PREM +1)
 # [45] FMLY_TOT_PREM : log 변환
 data_set$FMLY_TOT_PREM <- log(data_set$FMLY_TOT_PREM +1)
 
-# AGE_1 탐색적 분석
-#aggregate(formula = data_set[,1] ~AGE_1,data = data_set,FUN = mean) # 대출 연체 여부
-
-#aggregate(formula = data_set[,6] ~AGE_1,data = data_set,FUN = mean) # 총 대출 금액 
-
-#aggregate(formula = data_set[,17] ~AGE_1,data = data_set,FUN = mean) # 추정소득
-
-#aggregate(formula = data_set[,44] ~AGE_1,data = data_set,FUN = mean) # 기납입 보험료
-
 
 #--------------------------------------------------------------------------------------
 
@@ -218,18 +209,6 @@ str(data_set)
 
 colSums(is.na(data_set))
 
-#결측치 변수들 OCCP_NAME_G(16),LAST_CHLD_AGE(21),MATE_OCCP_NAME_G(22),
-#TEL_MBSP_GRAD(56),PAYM_METD(66)
-
-#integer -> numeric
-#data_set[2:15] <- lapply(data_set[2:15], as.numeric)
-#data_set[17:21] <- lapply(data_set[17:21], as.numeric)
-#data_set[23:51] <- lapply(data_set[23:51], as.numeric)
-#data_set[54:55] <- lapply(data_set[54:55], as.numeric)
-#data_set[57:65] <- lapply(data_set[57:65], as.numeric)
-#data_set[67:68] <- lapply(data_set[67:68], as.numeric)
-
-
 ##############################
 ##########모델링##############
 ##############################
@@ -238,10 +217,10 @@ library(DMwR)
 
 #데이터 나누기(8:2)
 set.seed(1)
-trainIndex <- createDataPartition(data_set$TARGET, p = .8)
+trainIndex <- createDataPartition(data_set$TARGET, p = .9, list=F, times=1)
 
-dataTrain <- data_set[trainIndex$Resample1,]
-dataTest  <- data_set[-trainIndex$Resample1,]
+dataTrain <- data_set[trainIndex,]
+dataTest  <- data_set[-trainIndex,]
 str(dataTrain)
 str(dataTest)
 
@@ -253,21 +232,19 @@ str(nodatatrain)
 #불균형 맞추기
 set.seed(1)
 table(nodatatrain$TARGET)
-smote_train <- SMOTE(TARGET ~ ., nodatatrain, perc.over=600, perc.under = 100)
+smote_train <- SMOTE(TARGET ~ ., nodatatrain, perc.over=1000, perc.under = 150)
 table(smote_train$TARGET)
 
 ##random
 library(randomForest)
-
 set.seed(1)
-random = randomForest(TARGET~.,data=smote_train, mtry = 20,
-                      importance =T)
+random = randomForest(TARGET~.,data=smote_train, importance =T)
 yrandom1 = predict(random, newdata=nodatatest)
 
+result <- confusionMatrix(yrandom1, nodatatest$TARGET)
 
-varImpPlot(random)
-result <- confusionMatrix(yrandom1, dataTest$TARGET)
-result$byClass
-p = 576/(1294+576)
-r = 576/(576+281)
+varImpPlot(result)
+
+p=189/(189+239)
+r=189/(312+189)
 2/{(1/p)+(1/r)}
