@@ -7,7 +7,7 @@ library(DMwR) ; library(xgboost)
 gc()
 rm(list=ls())
 #wd,readcsv ---------------------------------------------------------
-setwd("C:\\Users\\hanbum\\Desktop\\Data\\Bigcontest") 
+setwd("C:\\Work\\Data\\Bigcontest") 
 data_set <- read.csv('Data_set.csv',header = T, stringsAsFactors = F,
                      na.strings = c('NULL',''))
 
@@ -214,7 +214,7 @@ colSums(is.na(data_set))
 
 #데이터 나누기(8:2)
 set.seed(1)
-trainIndex <- createDataPartition(data_set$TARGET, p = .8)
+trainIndex <- createDataPartition(data_set$TARGET, p = .9)
 
 dataTrain <- data_set[trainIndex$Resample1,]
 dataTest  <- data_set[-trainIndex$Resample1,]
@@ -234,7 +234,7 @@ str(nodatatrain)
 #불균형 맞추기
 set.seed(1)
 table(nodatatrain$TARGET)
-smote_train <- SMOTE(TARGET ~ ., nodatatrain, perc.over=600, perc.under = 100)
+smote_train <- SMOTE(TARGET ~ ., nodatatrain, perc.over=2000, perc.under =100)
 table(smote_train$TARGET)
 
 
@@ -248,10 +248,10 @@ set.seed(1)
 
 # Train xgboost
 traincr <- trainControl(method = "repeatedcv",   # 10fold cross validation
-                     number = 5,							# do 5 repititions of cv
-                     summaryFunction=twoClassSummary,	# Use AUC to pick the best model
-                     classProbs=TRUE,
-                     allowParallel = TRUE)
+                        number = 5,							# do 5 repititions of cv
+                        summaryFunction=twoClassSummary,	# Use AUC to pick the best model
+                        classProbs=TRUE,
+                        allowParallel = TRUE)
 
 
 xgb.tune <-train(TARGET~., data= smote_train,
@@ -272,36 +272,8 @@ xgb.pred <- predict(xgb.tune,nodatatest)
 #Look at the confusion matrix  
 confusionMatrix(xgb.pred,nodatatest$TARGET)
 
-#Draw the ROC curve 
-xgb.probs <- predict(xgb.tune,testX,type="prob")
 
-p= 523/(1085+523)
-r= 523/(334+523)
+r= 189/(239+189)
+p= 189/(257+189)
+
 2/{(1/r)+(1/p)}
-
-#head(xgb.probs)
-xgb.ROC <- roc(predictor=xgb.probs$PS,
-               response=testData$Class,
-               levels=rev(levels(testData$Class)))
-xgb.ROC$auc
-# Area under the curve: 0.8857
-
-plot(xgb.ROC,main="xgboost ROC")
-# Plot the propability of poor segmentation
-histogram(~xgb.probs$PS|testData$Class,xlab="Probability of Poor Segmentation")
-
-
-# Comparing Multiple Models
-# Having set the same seed before running gbm.tune and xgb.tune
-# we have generated paired samples and are in a position to compare models 
-# using a resampling technique.
-# (See Hothorn at al, "The design and analysis of benchmark experiments
-# -Journal of Computational and Graphical Statistics (2005) vol 14 (3) 
-# pp 675-699) 
-
-rValues <- resamples(list(xgb=xgb.tune,gbm=gbm.tune))
-rValues$values
-summary(rValues)
-
-bwplot(rValues,metric="ROC",main="GBM vs xgboost")	# boxplot
-dotplot(rValues,metric="ROC",main="GBM vs xgboost")	# dotplot
