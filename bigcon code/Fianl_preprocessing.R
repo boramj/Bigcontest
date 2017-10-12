@@ -1,7 +1,8 @@
 #library load---------------------------------------------------
 library(ggplot2) ;library(plyr) ; library(dplyr) ;library(reshape2) ;library(corrplot) ;
 library(tree) ; library(rpart) ;library(rpart.plot) ;library(randomForest) ;library(caret) ;
-library(DMwR) ; library(xgboost) ; library(pastecs); library(gmodels) ; library(gridExtra)
+library(DMwR) ; library(xgboost) ; library(pastecs); library(gmodels) ; library(gridExtra);
+library(missForest)
 
 gc()
 rm(list=ls())
@@ -82,9 +83,12 @@ anyNA(data_set)
 colSums(is.na(data_set)) #16, 21, 22, 52, 53, 56, 66번 변수에서 결측치 확인
 
 ##결측치 채우기
-data_set<-knnImputation(data_set)
-anyNA(data_set)
-
+library(mice)
+#m=5 number of multiple imputations
+#maxit=10 number of iterations. 10-20 is sufficient.
+imp <- mice(data_set, m=5, maxit=10, printFlag=TRUE) 
+Data_imp <- complete(data_set, "long", include=TRUE)
+###################################
 
 
 
