@@ -129,10 +129,10 @@ rm(list=ls())
 data_set <- read.csv('data_impute.csv',header = T, stringsAsFactors = T,
                      na.strings = c('NULL',''))
 data_set<-data_set[,-1]
-str(data_set)
-
 data_set$SEX<-as.factor(data_set$SEX)
 data_set$TARGET<-as.factor(data_set$TARGET)
+str(data_set)
+
 #####연체 & 비 연체 그룹으로 분할#########
 data_0 <- data_set[data_set$TARGET==0,]
 data_1 <- data_set[data_set$TARGET==1,]
