@@ -205,15 +205,17 @@ trainIndex <- createDataPartition(data_set$TARGET, p = .9, list=F)
 dataTrain <- data_set[trainIndex,]
 dataTest  <- data_set[-trainIndex,]
 
-#불균형 맞추기
-set.seed(1)
-smote_train <- SMOTE(TARGET ~ ., dataTrain, perc.over=600, perc.under =300)
-table(smote_train$TARGET)
+# #불균형 맞추기
+# set.seed(1)
+# smote_train <- SMOTE(TARGET ~ ., dataTrain, perc.over=500, perc.under =300)
+# table(smote_train$TARGET)
 
 
 ######xgboost##############
 #caret은 target에 0,1이 들어가있으면 돌아가지 않는다. 바꿔주자
 smote_train$TARGET<- factor(smote_train$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
+
+dataTrain$TARGET<-factor(dataTrain$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
 dataTest$TARGET<-factor(dataTest$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
 
 # Set up for parallel procerssing
@@ -223,14 +225,15 @@ set.seed(1)
 traincr <- trainControl(method = "repeatedcv",   # 10fold cross validation
                         number = 5,							# do 5 repititions of cv
                         summaryFunction=twoClassSummary,	# Use AUC to pick the best model
-                        classProbs=TRUE,
-                        allowParallel = TRUE)
+                        classProbs=TRUE)
 
+traincr$sampling<-'smote'
 
-xgb.tune <-train(TARGET~., data= smote_train,
+xgb.tune <-train(TARGET~., data= dataTrain,
                  method="xgbTree",
                  metric="ROC",
-                 trControl=traincr)
+                 trControl=traincr,
+                 verbose=FALSE)
 
 
 xgb.tune$bestTune
@@ -240,7 +243,11 @@ res
 
 ### xgboostModel Predictions and Performance
 # Make predictions using the test data set
-xgb.pred <- predict(xgb.tune,nodatatest)
+xgb.pred <- predict(xgb.tune,dataTest)
 
 #Look at the confusion matrix  
-confusionMatrix(xgb.pred,nodatatest$TARGET)
+confusionMatrix(xgb.pred,dataTest$TARGET)
+
+r=126/(302+126)
+p=126/(110+126)
+2/{(1/r)+(1/p)}
