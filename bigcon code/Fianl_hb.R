@@ -126,10 +126,13 @@ rm(list=ls())
 
 
 #####여기서 부터 다시 하자 
-data_set <- read.csv('data_impute.csv',header = T, stringsAsFactors = F,
+data_set <- read.csv('data_impute.csv',header = T, stringsAsFactors = T,
                      na.strings = c('NULL',''))
+data_set<-data_set[,-1]
+str(data_set)
 
-colSums(is.na(data_set))
+data_set$SEX<-as.factor(data_set$SEX)
+data_set$TARGET<-as.factor(data_set$TARGET)
 #####연체 & 비 연체 그룹으로 분할#########
 data_0 <- data_set[data_set$TARGET==0,]
 data_1 <- data_set[data_set$TARGET==1,]
@@ -200,13 +203,6 @@ trainIndex <- createDataPartition(data_set$TARGET, p = .9, list=F)
 
 dataTrain <- data_set[trainIndex,]
 dataTest  <- data_set[-trainIndex,]
-
-####################################################
-#########결측치 포함 변수 없애기####################
-####################################################
-nodatatrain<-dataTrain[,-c(16,21,22,56,66,61)]
-nodatatest<-dataTest[,-c(16,21,22,56,66,61)]
-str(nodatatrain)
 
 #불균형 맞추기
 set.seed(1)
