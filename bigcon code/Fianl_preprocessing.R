@@ -14,7 +14,6 @@ data_set <- read.csv('Data_set.csv',header = T, stringsAsFactors = F,
 
 data_set = data_set[,-1] #이후 데이터 셋은 0번 고객 번호까지 삭제한 데이터셋을 활용
 str(data_set)
-
 ##############################
 #데이터 타입 확인 및 변경#####
 ##############################
@@ -70,9 +69,13 @@ now <- as.numeric(as.Date('2016-8-15', origin="1970-01-01"))
 for (i in 1:length(month)) {
   TEL_CNTT_QTR[i] = now - TEL_CNTT_QTR[i]
 }
-data_set[,61] = TEL_CNTT_QTR
+data_set[,61] = as.integer(TEL_CNTT_QTR)
 
 str(data_set)
+
+# [57] ARPU : 변수 타입 전처리(min값이 -1로 되어 있다)
+data_set[data_set[,57] == -1,57] = 0
+
 
 ##############################
 #####결측치 확인 및 입력######
@@ -82,17 +85,8 @@ str(data_set)
 anyNA(data_set)
 colSums(is.na(data_set)) #16, 21, 22, 52, 53, 56, 66번 변수에서 결측치 확인
 
-##결측치 채우기
+##결측치 채우기 --> 일단 채우지 말고 변수 분석 하자
 library(mice)
-#m=5 number of multiple imputations
-#maxit=10 number of iterations. 10-20 is sufficient.
-imp <- mice(data_set, m=5, maxit=10, printFlag=TRUE) 
-Data_imp <- complete(data_set, "long", include=TRUE)
-###################################
-
-
-
-
 
   
 #####연체 & 비 연체 그룹으로 분할#########
@@ -101,132 +95,159 @@ data_1 <- data_set[data_set$TARGET==1,]
 
 # ① Data Pre-processing [1.기본]---------------------------------------------
 
+########################
+######단위수정##########
+########################
+
 # [6] TOT_LNIF_AMT : 단위 수정
-TOT_LNIF_AMT <- data_set[,6]*1000
-data_set[,6] <- TOT_LNIF_AMT
+data_set$TOT_LNIF_AMT <- data_set[,6]*1000
 
 # [7] TOT_CLIF_AMT : 단위 수정
-TOT_CLIF_AMT <- data_set[,7]*1000
-data_set[,7] <- TOT_CLIF_AMT
+data_set$TOT_CLIF_AMT <- data_set[,7]*1000
 
 # [8] BNK_LNIF_AMT : 단위 수정 
-BNK_LNIF_AMT <- data_set[,8]*1000
-data_set[,8] <- BNK_LNIF_AMT
+data_set$BNK_LNIF_AMT <- data_set[,8]*1000
 
 # [9] CPT_LNIF_AMT : 단위 수정
-CPT_LNIF_AMT <- data_set[,9]*1000
-data_set[,9] <- CPT_LNIF_AMT
+data_set$CPT_LNIF_AMT <- data_set[,9]*1000
 
 # [15] CB_GUIF_AMT : 단위 수정
-CB_GUIF_AMT <- data_set[,15]*1000
-data_set[,15] <- CB_GUIF_AMT
-
-# [16] OCCP_NAME_G : Missing value 추정
+data_set$CB_GUIF_AMT <- data_set[,15]*1000
 
 # [17] CUST_JOB_INCM : 단위 수정
-CUST_JOB_INCM <- data_set[,17]*10000
-data_set[,17] <- CUST_JOB_INCM
+data_set$CUST_JOB_INCM <- data_set[,17]*10000
 
 # [18] HSHD_INFR_INCM : 단위 수정
-HSHD_INFR_INCM <- data_set[,18]*10000
-data_set[,18] <- HSHD_INFR_INCM
+data_set$HSHD_INFR_INCM <- data_set[,18]*10000
 
-# [21] LAST_CHID_AGE : Missing value 추정 
-# [22] MATE_OCCP_NAME_G : Missing value 추정
 # [23] MATE_JOB_INCM : 단위 수정
-MATE_JOB_INCM <- data_set[,23]*10000
-data_set[,23] <- MATE_JOB_INCM
+data_set$MATE_JOB_INCM <- data_set[,23]*10000
+
+#############################
+######log변환(보류)##########
+#############################
+
+# # [6] TOT_LNIF_AMT : log 변환
+# data_set$TOT_LNIF_AMT <- log(data_set$TOT_LNIF_AMT+1)
+# 
+# # [7] TOT_CLIF_AMT : log 변환
+# data_set$TOT_CLIF_AMT <- log(data_set$TOT_CLIF_AMT + 1)
+# 
+# # [8] BNK_LNIF_AMT : log 변환
+# data_set$BNK_LNIF_AMT <- log(data_set$BNK_LNIF_AMT + 1)
+# 
+# # [9] CPT_LNIF_AMT : log 변환
+# data_set$CPT_LNIF_AMT <- log(data_set$CPT_LNIF_AMT + 1)
+# 
+# # [15] CB_GUIF_AMT : log 변환
+# data_set$CB_GUIF_AMT <- log(data_set$CB_GUIF_AMT + 1)
+# 
+# # [26] TOT_CRLN_AMT : log 변환
+# data_set$TOT_CRLN_AMT <- log(data_set$TOT_CRLN_AMT + 1)
+# 
+# # [27] TOT_REPY_AMT : log 변환
+# data_set$TOT_REPY_AMT <- log(data_set$TOT_REPY_AMT + 1)
+# 
+# # [36] STLN_REMN_AMT
+# data_set$STLN_REMN_AMT <- log(data_set$STLN_REMN_AMT + 1)
+# 
+# # [37] LT1Y_STLN_AMT : log 변환
+# data_set$LT1Y_STLN_AMT <- log(data_set$LT1Y_STLN_AMT +1)
+# 
+# # [39] GDINS_MON_PREM
+# data_set$GDINS_MON_PREM <-log(data_set$GDINS_MON_PREM +1)
+# 
+# # [40] SVINS_MON_PREM : log 변환
+# data_set$SVINS_MON_PREM <-log(data_set$SVINS_MON_PREM +1)
+# 
+# # [41] FMLY_GDINS_MNPREM : log 변환
+# data_set$FMLY_GDINS_MNPREM <- log(data_set$FMLY_GDINS_MNPREM +1)
+# 
+# # [42] FMLY_SVINS_MNPREM : log 변환
+# data_set$FMLY_SVINS_MNPREM <- log(data_set$FMLY_SVINS_MNPREM +1)
+# 
+# # [43] MAX_MON_PREM : log 변환
+# data_set$MAX_MON_PREM <- log(data_set$MAX_MON_PREM +1)
+# 
+# # [44] TOT_PREM : log 변환
+# data_set$TOT_PREM <- log(data_set$TOT_PREM +1)
+# 
+# # [45] FMLY_TOT_PREM : log 변환
+# data_set$FMLY_TOT_PREM <- log(data_set$FMLY_TOT_PREM +1)
+
+
+#############################
+######정규화 변환(보류)######
+#############################
+
+
+#################################################
+#feature engineering#############################
+#################################################
+
+
+####category dimension#############
 
 
 
-####BGCON_CLAIM_DATA.TRAIN$RECP_DATE_YEAR <- as.numeric(format(as.Date(as.character(BGCON_CLAIM_DATA.TRAIN$RECP_DATE), format = "%Y%m%d"), "%Y"))
-# [28] CRLN_OVDU_RATE : 파생변수 (0 값을 갖는 관측치가 매우 높아 0과 1(연체율)의 값을 갖는 변수 생성
-CRLN_OVDU_RATE_1 = data_set[,28]
-CRLN_OVDU_RATE_1[CRLN_OVDU_RATE_1!= 0] = 1
-CRLN_OVDU_RATE_1
-
-# [29] CRLN_30OVDU_RATE : 파생변수 (0 값을 갖는 관측치가 매우 높아 0과 1(연체율)의 값을 갖는 변수 생성
-CRLN_30OVDU_RATE_1 = data_set[,29]
-CRLN_30OVDU_RATE_1[CRLN_30OVDU_RATE_1!= 0] = 1
 
 
-# [35] AVG_STLN_RATE : 파생변수 (0 값을 갖는 관측치가 매우 높아 0과 1(연체율)의 값을 갖는 변수 생성
-AVG_STLN_RATE_1 = data_set[,35]
-AVG_STLN_RATE_1[AVG_STLN_RATE_1!= 0] = 1
-AVG_STLN_RATE_1
+################################
+#데이터 나누기(9:1)#############
+################################
+set.seed(1)
+trainIndex <- createDataPartition(data_set$TARGET, p = .9, list=F)
 
-# [52] AGE : 범주화
+dataTrain <- data_set[trainIndex,]
+dataTest  <- data_set[-trainIndex,]
 
-
-# [56] TEL_MBSP_GRAD : Missing value
-
-# [57] ARPU : 변수 타입 전처리
-data_set[data_set[,57] == -1,57] = 0
-
-# [59] CBPT_MBSP_YN : 변수 타입 전처리
-data_set[data_set[,59] == 'Y' ,59] = 1
-data_set[data_set[,59] == 'N' ,59] = 0
-data_set[,59] <- as.numeric(data_set[,59])
+####################################################
+#########결측치 포함 변수 없애기####################
+####################################################
+nodatatrain<-dataTrain[,-c(16,21,22,52,53,56,66)]
+nodatatest<-dataTest[,-c(16,21,22,52,53,56,66)]
+str(nodatatrain)
 
 
-# [66] PAYM_METD : Missing value
-
-# [67] LINE_STUS : 변수 타입 전처리
-data_set[data_set[,67] == 'U' ,67] = 1
-data_set[data_set[,67] == 'S' ,67] = 0
-data_set[,67] <- as.numeric(data_set[,67])
-table(data_set[,67])
+#불균형 맞추기
+set.seed(1)
+table(nodatatrain$TARGET)
+smote_train <- SMOTE(TARGET ~ ., nodatatrain, perc.over=400, perc.under =300)
+table(smote_train$TARGET)
 
 
-# ① Data Pre-processing [2.log 변환] ---------------------------------------------
-# [6] TOT_LNIF_AMT : log 변환
-data_set$TOT_LNIF_AMT <- log(data_set$TOT_LNIF_AMT+1)
+######xgboost##############
+#caret은 target에 0,1이 들어가있으면 돌아가지 않는다. 바꿔주자
+smote_train$TARGET<- factor(smote_train$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
+nodatatest$TARGET<- factor(nodatatest$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
 
-# [7] TOT_CLIF_AMT : log 변환
-data_set$TOT_CLIF_AMT <- log(data_set$TOT_CLIF_AMT + 1)
+# Set up for parallel procerssing
+set.seed(1)
 
-# [8] BNK_LNIF_AMT : log 변환
-data_set$BNK_LNIF_AMT <- log(data_set$BNK_LNIF_AMT + 1)
+# Train xgboost
+traincr <- trainControl(method = "repeatedcv",   # 10fold cross validation
+                        number = 5,							# do 5 repititions of cv
+                        summaryFunction=twoClassSummary,	# Use AUC to pick the best model
+                        classProbs=TRUE,
+                        allowParallel = TRUE)
 
-# [9] CPT_LNIF_AMT : log 변환
-data_set$CPT_LNIF_AMT <- log(data_set$CPT_LNIF_AMT + 1)
 
-# [15] CB_GUIF_AMT : log 변환
-data_set$CB_GUIF_AMT <- log(data_set$CB_GUIF_AMT + 1)
+xgb.tune <-train(TARGET~., data= smote_train,
+                 method="xgbTree",
+                 metric="ROC",
+                 trControl=traincr)
 
-# [26] TOT_CRLN_AMT : log 변환
-data_set$TOT_CRLN_AMT <- log(data_set$TOT_CRLN_AMT + 1)
 
-# [27] TOT_REPY_AMT : log 변환
-data_set$TOT_REPY_AMT <- log(data_set$TOT_REPY_AMT + 1)
+xgb.tune$bestTune
+plot(xgb.tune)  		# Plot the performance of the training models
+res <- xgb.tune$results
+res
 
-# [36] STLN_REMN_AMT
-data_set$STLN_REMN_AMT <- log(data_set$STLN_REMN_AMT + 1)
+### xgboostModel Predictions and Performance
+# Make predictions using the test data set
+xgb.pred <- predict(xgb.tune,nodatatest)
 
-# [37] LT1Y_STLN_AMT : log 변환
-data_set$LT1Y_STLN_AMT <- log(data_set$LT1Y_STLN_AMT +1)
-
-# [39] GDINS_MON_PREM
-data_set$GDINS_MON_PREM <-log(data_set$GDINS_MON_PREM +1)
-
-# [40] SVINS_MON_PREM : log 변환
-data_set$SVINS_MON_PREM <-log(data_set$SVINS_MON_PREM +1)
-
-# [41] FMLY_GDINS_MNPREM : log 변환
-data_set$FMLY_GDINS_MNPREM <- log(data_set$FMLY_GDINS_MNPREM +1)
-
-# [42] FMLY_SVINS_MNPREM : log 변환
-data_set$FMLY_SVINS_MNPREM <- log(data_set$FMLY_SVINS_MNPREM +1)
-
-# [43] MAX_MON_PREM : log 변환
-data_set$MAX_MON_PREM <- log(data_set$MAX_MON_PREM +1)
-
-# [44] TOT_PREM : log 변환
-data_set$TOT_PREM <- log(data_set$TOT_PREM +1)
-
-# [45] FMLY_TOT_PREM : log 변환
-data_set$FMLY_TOT_PREM <- log(data_set$FMLY_TOT_PREM +1)
-
-#--------------------------------------------------------------------------------------
+#Look at the confusion matrix  
+confusionMatrix(xgb.pred,nodatatest$TARGET)
 
 
