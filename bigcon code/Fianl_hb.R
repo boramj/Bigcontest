@@ -131,6 +131,7 @@ data_set <- read.csv('data_impute.csv',header = T, stringsAsFactors = T,
 data_set<-data_set[,-1]
 data_set$SEX<-as.factor(data_set$SEX)
 data_set$TARGET<-as.factor(data_set$TARGET)
+
 str(data_set)
 
 #####연체 & 비 연체 그룹으로 분할#########
@@ -206,16 +207,15 @@ dataTest  <- data_set[-trainIndex,]
 
 #불균형 맞추기
 set.seed(1)
-smote_train <- SMOTE(TARGET ~ ., nodatatrain, perc.over=600, perc.under =300)
+smote_train <- SMOTE(TARGET ~ ., dataTrain, perc.over=600, perc.under =300)
 table(smote_train$TARGET)
 
 
 ######xgboost##############
 #caret은 target에 0,1이 들어가있으면 돌아가지 않는다. 바꿔주자
 smote_train$TARGET<- factor(smote_train$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
-nodatatest$TARGET<- factor(nodatatest$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
+dataTest$TARGET<-factor(dataTest$TARGET, levels= c("0", "1"), labels=c("no", "yes"))
 
-str(smote_train)
 # Set up for parallel procerssing
 set.seed(1)
 
@@ -244,10 +244,3 @@ xgb.pred <- predict(xgb.tune,nodatatest)
 
 #Look at the confusion matrix  
 confusionMatrix(xgb.pred,nodatatest$TARGET)
-
-
-
-p=158/(270+158)
-r=158/(142+162)
-
-2/{(1/r)+(1/p)}
